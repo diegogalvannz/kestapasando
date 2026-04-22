@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getArticuloPorSlug, getArticulos } from '../lib/db'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const COLORES = {
   mexico:          { bg:'#FEE2E2', text:'#991B1B', acento:'#DC2626' },
@@ -107,6 +107,76 @@ function TarjetaRelacionada({ art }) {
   )
 }
 
+const REACCIONES = [
+  { emoji: '🔥', label: 'En llamas' },
+  { emoji: '😂', label: 'Me cagué' },
+  { emoji: '😤', label: 'Me enojé' },
+  { emoji: '😱', label: 'Me sorprendió' },
+  { emoji: '🤔', label: 'Hmm' },
+]
+
+function SeccionEmojis({ slug }) {
+  const key = `reacciones_${slug}`
+  const [contadores, setContadores] = useState(() => {
+    if (typeof window === 'undefined') return REACCIONES.map(() => 0)
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null')
+      return saved || REACCIONES.map(() => 0)
+    } catch { return REACCIONES.map(() => 0) }
+  })
+
+  const reaccionar = (i) => {
+    setContadores(prev => {
+      const nuevo = [...prev]
+      nuevo[i] = (nuevo[i] || 0) + 1
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, JSON.stringify(nuevo))
+      }
+      return nuevo
+    })
+  }
+
+  return (
+    <div style={{ marginTop:'32px', padding:'20px', background:'#fff', borderRadius:'14px', border:'1px solid #e5e7eb' }}>
+      <p style={{ margin:'0 0 14px', fontSize:'13px', fontWeight:'700', color:'#6b7280', textTransform:'uppercase', letterSpacing:'1px' }}>
+        ¿Cómo te dejó esta nota?
+      </p>
+      <div style={{ display:'flex', gap:'10px', flexWrap:'wrap' }}>
+        {REACCIONES.map((r, i) => (
+          <button key={r.emoji} onClick={() => reaccionar(i)}
+            style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'4px', background:'#f8fafc', border:'2px solid #e5e7eb', borderRadius:'12px', padding:'10px 14px', cursor:'pointer', transition:'all 0.15s', minWidth:'64px' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='#6366f1'; e.currentTarget.style.background='#eef2ff' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.background='#f8fafc' }}>
+            <span style={{ fontSize:'26px', lineHeight:1 }}>{r.emoji}</span>
+            <span style={{ fontSize:'11px', fontWeight:'700', color:'#6366f1' }}>{contadores[i] || 0}</span>
+            <span style={{ fontSize:'10px', color:'#9ca3af' }}>{r.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function resaltarPalabras(texto) {
+  if (!texto) return texto
+  // Resaltar: palabras en mayúscula (sustantivos propios), números con contexto
+  const partes = []
+  let i = 0
+  const re = /\b([A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]{2,}(?:\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]{2,})*|\d{1,3}(?:[,\.]\d{3})*(?:\.\d+)?(?:\s*(?:mil|millones?|billones?|%|pesos?|dólares?|mdd))?)\b/g
+  let match
+  while ((match = re.exec(texto)) !== null) {
+    if (match.index > i) partes.push(texto.slice(i, match.index))
+    partes.push(
+      <mark key={match.index} style={{ background:'#FFE500', borderRadius:'3px', padding:'0 2px', fontWeight:'inherit' }}>
+        {match[0]}
+      </mark>
+    )
+    i = match.index + match[0].length
+  }
+  if (i < texto.length) partes.push(texto.slice(i))
+  return partes.length > 0 ? partes : texto
+}
+
 export default function Articulo({ articulo, relacionados }) {
   if (!articulo) {
     return (
@@ -127,7 +197,7 @@ export default function Articulo({ articulo, relacionados }) {
 
       <style>{`
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        .contenido p { margin-bottom:1.3rem; line-height:1.85; color:#374151; font-size:17px; }
+        .contenido p { margin-bottom:1.3rem; line-height:1.85; color:#374151; font-size:17px; text-align:justify; }
         a { text-decoration:none; }
       `}</style>
 
@@ -138,8 +208,7 @@ export default function Articulo({ articulo, relacionados }) {
               <span style={{ fontSize:'16px', fontWeight:'900', color:'white' }}>?!</span>
             </div>
             <div>
-              <div style={{ fontSize:'10px', fontWeight:'700', color:'rgba(255,255,255,0.5)', letterSpacing:'3px', textTransform:'uppercase' }}>Qué chingados</div>
-              <div style={{ fontSize:'22px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>está pasando?</div>
+              <div style={{ fontSize:'24px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando</div>
               <div style={{ width:'120px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'3px' }}/>
             </div>
           </div>
@@ -176,11 +245,13 @@ export default function Articulo({ articulo, relacionados }) {
 
         <div className="contenido">
           {articulo.cuerpo && articulo.cuerpo.split('\n').map((parrafo, i) => (
-            parrafo.trim() ? <p key={i}>{parrafo}</p> : null
+            parrafo.trim() ? <p key={i}>{resaltarPalabras(parrafo)}</p> : null
           ))}
         </div>
 
-        <div style={{ marginTop:'40px', paddingTop:'20px', borderTop:'1px solid #e5e7eb' }}>
+        <SeccionEmojis slug={articulo.slug} />
+
+        <div style={{ marginTop:'32px', paddingTop:'20px', borderTop:'1px solid #e5e7eb' }}>
           <Link href="/" style={{ fontSize:'14px', fontWeight:'700', color:c.acento }}>
             ← Volver al inicio
           </Link>
