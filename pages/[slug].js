@@ -199,16 +199,29 @@ export default function Articulo({ articulo, relacionados }) {
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         .contenido p { margin-bottom:1.3rem; line-height:1.85; color:#374151; font-size:17px; text-align:justify; }
         a { text-decoration:none; }
+        .header-slug { padding:16px 32px; }
+        .logo-text-slug { font-size:24px; }
+        .titulo-articulo { font-size:32px; }
+        .grid-relacionados { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+        @media(max-width:900px) { .grid-relacionados { grid-template-columns:repeat(2,1fr); } }
+        @media(max-width:600px) {
+          .header-slug { padding:12px 16px; }
+          .logo-text-slug { font-size:20px; }
+          .titulo-articulo { font-size:24px; }
+          .grid-relacionados { grid-template-columns:repeat(2,1fr); }
+          .contenido p { font-size:16px; }
+        }
+        @media(max-width:400px) { .grid-relacionados { grid-template-columns:1fr; } }
       `}</style>
 
-      <header style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)', padding:'16px 32px' }}>
+      <header className="header-slug" style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)' }}>
         <Link href="/">
           <div style={{ display:'flex', alignItems:'center', gap:'12px', cursor:'pointer' }}>
             <div style={{ width:'38px', height:'50px', background:'rgba(255,255,255,0.15)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid rgba(255,255,255,0.25)' }}>
               <span style={{ fontSize:'16px', fontWeight:'900', color:'white' }}>?!</span>
             </div>
             <div>
-              <div style={{ fontSize:'24px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
+              <div className="logo-text-slug" style={{ fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
               <div style={{ width:'120px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'3px' }}/>
             </div>
           </div>
@@ -226,7 +239,7 @@ export default function Articulo({ articulo, relacionados }) {
           </span>
         </div>
 
-        <h1 style={{ fontSize:'32px', fontWeight:'900', color:'#111827', lineHeight:'1.25', marginBottom:'16px' }}>
+        <h1 className="titulo-articulo" style={{ fontWeight:'900', color:'#111827', lineHeight:'1.25', marginBottom:'16px' }}>
           {articulo.titulo_reescrito}
         </h1>
 
@@ -268,7 +281,7 @@ export default function Articulo({ articulo, relacionados }) {
                 También te puede interesar
               </h3>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px' }}>
+            <div className="grid-relacionados">
               {relacionados.map(art => (
                 <TarjetaRelacionada key={art.id} art={art}/>
               ))}

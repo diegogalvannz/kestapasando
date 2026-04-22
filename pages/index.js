@@ -24,7 +24,7 @@ function RelojFecha() {
   }, [])
   if (!ahora) return null
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:'16px', fontSize:'12px', color:'rgba(255,255,255,0.7)' }}>
+    <div className="reloj-fecha">
       <span style={{ textTransform:'capitalize' }}>{format(ahora, "EEEE d 'de' MMMM yyyy", { locale:es })}</span>
       <span style={{ background:'rgba(255,255,255,0.2)', padding:'2px 10px', borderRadius:'20px', fontWeight:'700', letterSpacing:'1px', fontVariantNumeric:'tabular-nums' }}>
         {format(ahora, 'HH:mm:ss')}
@@ -113,6 +113,10 @@ export default function Home({ articulos, categoriaActiva }) {
         a { text-decoration:none; }
         .grid-top { display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px; margin-bottom:14px; }
         .grid-resto { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+        .reloj-fecha { display:flex; align-items:center; gap:16px; font-size:12px; color:rgba(255,255,255,0.7); }
+        .topbar { padding:8px 32px; }
+        .header-main { padding:16px 32px 20px; }
+        .logo-text { font-size:26px; }
         @media(max-width:900px) {
           .grid-top { grid-template-columns:1fr 1fr; }
           .grid-resto { grid-template-columns:repeat(2,1fr); }
@@ -121,15 +125,21 @@ export default function Home({ articulos, categoriaActiva }) {
           .grid-top { grid-template-columns:1fr; }
           .grid-resto { grid-template-columns:1fr; }
         }
+        @media(max-width:480px) {
+          .topbar { padding:6px 16px; }
+          .header-main { padding:12px 16px 16px; }
+          .logo-text { font-size:20px; }
+          .reloj-fecha { flex-wrap:wrap; gap:6px; }
+        }
       `}</style>
 
-      <div style={{ background:'#1e1b4b', padding:'8px 32px' }}>
+      <div className="topbar" style={{ background:'#1e1b4b' }}>
         <div style={{ maxWidth:'1200px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <RelojFecha/>
         </div>
       </div>
 
-      <header style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)', padding:'16px 32px 20px' }}>
+      <header className="header-main" style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)' }}>
         <div style={{ maxWidth:'1200px', margin:'0 auto' }}>
           <Link href="/">
             <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'14px', cursor:'pointer' }}>
@@ -137,7 +147,7 @@ export default function Home({ articulos, categoriaActiva }) {
                 <span style={{ fontSize:'18px', fontWeight:'900', color:'white' }}>?!</span>
               </div>
               <div>
-                <div style={{ fontSize:'26px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
+                <div className="logo-text" style={{ fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
                 <div style={{ width:'140px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'4px' }}/>
               </div>
             </div>
