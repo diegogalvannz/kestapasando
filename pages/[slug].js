@@ -94,7 +94,7 @@ function TarjetaRelacionada({ art }) {
               {art.categoria}
             </span>
             <span style={{ fontSize:'10px', color:'#9ca3af' }}>
-              {art.publicado_en ? format(new Date(art.publicado_en), "d MMM", { locale:es }) : ''}
+              {(art.publicado_en || art.creado_en) ? format(new Date(art.publicado_en || art.creado_en), "d MMM", { locale:es }) : ''}
             </span>
           </div>
           <p style={{ fontSize:'13px', fontWeight:'700', color:'#111827', lineHeight:'1.35', margin:'0 0 6px' }}>
@@ -235,7 +235,7 @@ export default function Articulo({ articulo, relacionados }) {
             {articulo.categoria}
           </span>
           <span style={{ fontSize:'12px', color:'#9ca3af' }}>
-            {articulo.publicado_en ? format(new Date(articulo.publicado_en), "d 'de' MMMM yyyy · HH:mm", { locale:es }) : ''}
+            {(articulo.publicado_en || articulo.creado_en) ? format(new Date(articulo.publicado_en || articulo.creado_en), "d 'de' MMMM yyyy · HH:mm", { locale:es }) : ''}
           </span>
         </div>
 

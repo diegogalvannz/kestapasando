@@ -70,7 +70,7 @@ function TarjetaNoticia({ art, altura }) {
               {art.categoria}
             </span>
             <span style={{ fontSize:'10px', color:'#9ca3af' }}>
-              {art.publicado_en ? format(new Date(art.publicado_en), "d MMM · HH:mm", { locale:es }) : ''}
+              {(art.publicado_en || art.creado_en) ? format(new Date(art.publicado_en || art.creado_en), "d MMM · HH:mm", { locale:es }) : ''}
             </span>
           </div>
           <h2 style={{ fontSize: altura === '240px' ? '17px' : '14px', fontWeight:'800', color:'#111827', lineHeight:'1.3', marginBottom:'6px' }}>
