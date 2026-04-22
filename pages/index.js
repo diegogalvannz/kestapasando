@@ -137,7 +137,7 @@ export default function Home({ articulos, categoriaActiva }) {
                 <span style={{ fontSize:'18px', fontWeight:'900', color:'white' }}>?!</span>
               </div>
               <div>
-                <div style={{ fontSize:'26px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando</div>
+                <div style={{ fontSize:'26px', fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
                 <div style={{ width:'140px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'4px' }}/>
               </div>
             </div>
