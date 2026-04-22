@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { getArticulos } from '../lib/db'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { formatFechaCorta } from '../lib/fecha'
 import { useState, useEffect } from 'react'
 
 const COLORES = {
@@ -70,7 +71,7 @@ function TarjetaNoticia({ art, altura }) {
               {art.categoria}
             </span>
             <span style={{ fontSize:'10px', color:'#9ca3af' }}>
-              {(art.publicado_en || art.creado_en) ? format(new Date(art.publicado_en || art.creado_en), "d MMM · HH:mm", { locale:es }) : ''}
+              {formatFechaCorta(art.publicado_en || art.creado_en)}
             </span>
           </div>
           <h2 style={{ fontSize: altura === '240px' ? '17px' : '14px', fontWeight:'800', color:'#111827', lineHeight:'1.3', marginBottom:'6px' }}>
