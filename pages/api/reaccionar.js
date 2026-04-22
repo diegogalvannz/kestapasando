@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY
 )
 
 const COLUMNAS = {
@@ -23,10 +23,11 @@ export default async function handler(req, res) {
   if (!col) return res.status(400).json({ error: 'Emoji inválido' })
 
   try {
-    if (operacion === 'decrementar') {
-      await supabase.rpc('decrementar_reaccion', { articulo_id: articuloId, col })
-    } else {
-      await supabase.rpc('incrementar_reaccion', { articulo_id: articuloId, col })
+    const fnName = operacion === 'decrementar' ? 'decrementar_reaccion' : 'incrementar_reaccion'
+    const { error: rpcError } = await supabase.rpc(fnName, { articulo_id: articuloId, col })
+    if (rpcError) {
+      console.error('[reaccionar] rpc error:', rpcError)
+      return res.status(500).json({ error: rpcError.message })
     }
 
     // Devolver contadores actualizados
@@ -36,9 +37,13 @@ export default async function handler(req, res) {
       .eq('id', articuloId)
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('[reaccionar] select error:', error)
+      throw error
+    }
     return res.status(200).json(data)
   } catch (err) {
+    console.error('[reaccionar] catch:', err.message)
     return res.status(500).json({ error: err.message })
   }
 }
