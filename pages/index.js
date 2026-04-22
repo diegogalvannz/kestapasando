@@ -5,6 +5,7 @@ import { getArticulos } from '../lib/db'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { formatFechaCorta } from '../lib/fecha'
+import EmojiReacciones from '../components/EmojiReacciones'
 import { useState, useEffect } from 'react'
 
 const COLORES = {
@@ -81,6 +82,16 @@ function TarjetaNoticia({ art, altura }) {
             {art.resumen}
           </p>
           <span style={{ fontSize:'11px', fontWeight:'700', color:c.acento }}>Leer más →</span>
+          <EmojiReacciones
+            articuloId={art.id}
+            contadoresIniciales={{
+              reaccion_fuego:    art.reaccion_fuego    || 0,
+              reaccion_risa:     art.reaccion_risa     || 0,
+              reaccion_sorpresa: art.reaccion_sorpresa || 0,
+              reaccion_enojo:    art.reaccion_enojo    || 0,
+              reaccion_calavera: art.reaccion_calavera || 0,
+            }}
+          />
         </div>
       </div>
     </Link>
