@@ -89,6 +89,10 @@ export default async function handler(req, res) {
       { count: weekCount },
       { count: monthCount },
       { data: ultimos10 },
+      { data: suscriptores },
+      { data: nuevosHoy },
+      { data: nuevosSemana },
+      { data: newsletterLogs },
     ] = await Promise.all([
       supabase
         .from('articulos')
@@ -112,6 +116,27 @@ export default async function handler(req, res) {
         .from('articulos')
         .select('id, url_original, titulo_reescrito, etiquetas, publicado_en, categoria')
         .order('publicado_en', { ascending: false })
+        .limit(10),
+      supabase
+        .from('suscriptores')
+        .select('id, email, fecha_registro')
+        .eq('activo', true)
+        .order('fecha_registro', { ascending: false })
+        .limit(10),
+      supabase
+        .from('suscriptores')
+        .select('*', { count: 'exact', head: true })
+        .eq('activo', true)
+        .gte('fecha_registro', todayStart.toISOString()),
+      supabase
+        .from('suscriptores')
+        .select('*', { count: 'exact', head: true })
+        .eq('activo', true)
+        .gte('fecha_registro', weekStart.toISOString()),
+      supabase
+        .from('newsletter_logs')
+        .select('id, fecha_envio, total_suscriptores, emails_enviados, emails_fallidos, articulos_incluidos')
+        .order('fecha_envio', { ascending: false })
         .limit(10),
     ])
 
@@ -161,6 +186,12 @@ export default async function handler(req, res) {
     const aiMes = monthCount ? Math.round((monthCount || 0) * (aiHoy / Math.max(today.length, 1))) : aiHoy
     const costoMesUSD = aiMes * COSTO_POR_ARTICULO
 
+    // Subscriber counts require extra queries for total active
+    const { count: totalSuscriptores } = await supabase
+      .from('suscriptores')
+      .select('*', { count: 'exact', head: true })
+      .eq('activo', true)
+
     return res.status(200).json({
       hoy: {
         total: today.length,
@@ -182,6 +213,20 @@ export default async function handler(req, res) {
       porFuente: porFuenteArr,
       ultimaPublicacion,
       ultimos,
+      newsletter: {
+        totalSuscriptores: totalSuscriptores || 0,
+        nuevosHoy: nuevosHoy !== null ? nuevosHoy : 0,
+        nuevosSemana: nuevosSemana !== null ? nuevosSemana : 0,
+        ultimos10: (suscriptores || []).map(s => ({ email: s.email, fecha_registro: s.fecha_registro })),
+        logs: (newsletterLogs || []).map(l => ({
+          id: l.id,
+          fecha_envio: l.fecha_envio,
+          total_suscriptores: l.total_suscriptores,
+          emails_enviados: l.emails_enviados,
+          emails_fallidos: l.emails_fallidos,
+          num_articulos: (l.articulos_incluidos || []).length,
+        })),
+      },
       timestamp: new Date().toISOString(),
     })
   } catch (err) {

@@ -145,6 +145,59 @@ function LoginForm({ onLogin, error }) {
   )
 }
 
+function EnviarNewsletter({ password, onSuccess }) {
+  const [estado, setEstado] = useState('idle') // idle | loading | ok | error
+  const [resultado, setResultado] = useState(null)
+
+  const enviar = async () => {
+    if (!confirm('¿Enviar el newsletter ahora a todos los suscriptores activos?')) return
+    setEstado('loading')
+    setResultado(null)
+    try {
+      const res = await fetch('/api/send-newsletter', {
+        headers: { 'x-cron-secret': 'kestapasando_cron_2026' }
+      })
+      const data = await res.json()
+      if (res.ok && data.ok) {
+        setEstado('ok')
+        setResultado(data)
+        setTimeout(() => { setEstado('idle'); onSuccess?.() }, 4000)
+      } else {
+        setEstado('error')
+        setResultado(data)
+      }
+    } catch (e) {
+      setEstado('error')
+      setResultado({ error: e.message })
+    }
+  }
+
+  return (
+    <div>
+      <button
+        onClick={enviar}
+        disabled={estado === 'loading'}
+        style={{
+          background: estado === 'ok' ? '#052e16' : estado === 'error' ? '#1f0000' : '#1e2130',
+          color: estado === 'ok' ? '#22c55e' : estado === 'error' ? '#ef4444' : '#818cf8',
+          border: `1px solid ${estado === 'ok' ? '#22c55e' : estado === 'error' ? '#ef4444' : '#6366f1'}`,
+          borderRadius: '8px', padding: '6px 14px', cursor: 'pointer',
+          fontSize: '12px', fontWeight: '700', whiteSpace: 'nowrap',
+          opacity: estado === 'loading' ? 0.7 : 1,
+        }}
+      >
+        {estado === 'loading' ? '⟳ Enviando...'
+          : estado === 'ok' ? `✓ Enviado (${resultado?.enviados || 0})`
+          : estado === 'error' ? '✗ Error'
+          : '📤 Enviar ahora'}
+      </button>
+      {resultado?.error && (
+        <div style={{ fontSize:'11px', color:'#f87171', marginTop:'4px' }}>{resultado.error}</div>
+      )}
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const [auth, setAuth] = useState(null) // null=loading, false=no auth, string=password
   const [loginError, setLoginError] = useState(false)
@@ -506,6 +559,82 @@ export default function Dashboard() {
               <div style={{ fontSize:'11px', color: data?.hoy.fallback > 0 ? '#f59e0b' : '#22c55e', marginTop:'6px', fontWeight:'700' }}>
                 {data?.hoy.fallback > 0 ? `⚠️ ${data.hoy.fallback} en fallback` : '✅ Sin fallbacks'}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECCIÓN 8 — Newsletter */}
+        <section>
+          <div className="section-title">📧 Newsletter & suscriptores</div>
+
+          {/* KPIs suscriptores */}
+          <div className="grid-3" style={{ marginBottom:'16px' }}>
+            <KPI label="Suscriptores activos" value={data?.newsletter?.totalSuscriptores ?? '—'} color="#22c55e"/>
+            <KPI label="Nuevos hoy" value={data?.newsletter?.nuevosHoy ?? '—'} sub="suscriptores"/>
+            <KPI label="Nuevos esta semana" value={data?.newsletter?.nuevosSemana ?? '—'} sub="suscriptores"/>
+          </div>
+
+          <div className="grid-2" style={{ marginBottom:'16px' }}>
+            {/* Últimos suscriptores */}
+            <div className="card">
+              <div style={{ fontWeight:'700', fontSize:'13px', marginBottom:'12px', color:'#d1d5db' }}>Últimos 10 suscriptores</div>
+              {data?.newsletter?.ultimos10?.length > 0 ? (
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'12px' }}>
+                  <thead>
+                    <tr style={{ borderBottom:'1px solid #374151' }}>
+                      <th style={{ textAlign:'left', padding:'6px 8px', color:'#6b7280', fontWeight:'600' }}>Email</th>
+                      <th style={{ textAlign:'left', padding:'6px 8px', color:'#6b7280', fontWeight:'600', whiteSpace:'nowrap' }}>Registro</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.newsletter.ultimos10.map((s, i) => (
+                      <tr key={i} style={{ borderBottom:'1px solid #1f2937' }}>
+                        <td style={{ padding:'7px 8px', color:'#e5e7eb' }}>{s.email}</td>
+                        <td style={{ padding:'7px 8px', color:'#9ca3af', whiteSpace:'nowrap' }}>{formatFechaCorta(s.fecha_registro)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ color:'#6b7280', fontSize:'13px' }}>
+                  {data ? 'Sin suscriptores todavía' : 'Cargando...'}
+                </div>
+              )}
+            </div>
+
+            {/* Historial de envíos + botón enviar */}
+            <div className="card">
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
+                <div style={{ fontWeight:'700', fontSize:'13px', color:'#d1d5db' }}>Historial de envíos</div>
+                <EnviarNewsletter password={auth} onSuccess={() => fetchData(auth)}/>
+              </div>
+              {data?.newsletter?.logs?.length > 0 ? (
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'12px' }}>
+                  <thead>
+                    <tr style={{ borderBottom:'1px solid #374151' }}>
+                      <th style={{ textAlign:'left', padding:'6px 8px', color:'#6b7280', fontWeight:'600' }}>Fecha</th>
+                      <th style={{ textAlign:'right', padding:'6px 8px', color:'#6b7280', fontWeight:'600' }}>Enviados</th>
+                      <th style={{ textAlign:'right', padding:'6px 8px', color:'#6b7280', fontWeight:'600' }}>Noticias</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.newsletter.logs.map(l => (
+                      <tr key={l.id} style={{ borderBottom:'1px solid #1f2937' }}>
+                        <td style={{ padding:'7px 8px', color:'#9ca3af', whiteSpace:'nowrap' }}>{formatFechaCorta(l.fecha_envio)}</td>
+                        <td style={{ padding:'7px 8px', textAlign:'right' }}>
+                          <span style={{ color:'#22c55e', fontWeight:'700' }}>{l.emails_enviados}</span>
+                          {l.emails_fallidos > 0 && <span style={{ color:'#ef4444', marginLeft:'4px' }}>({l.emails_fallidos} err)</span>}
+                        </td>
+                        <td style={{ padding:'7px 8px', color:'#9ca3af', textAlign:'right' }}>{l.num_articulos}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ color:'#6b7280', fontSize:'13px' }}>
+                  {data ? 'Sin envíos todavía' : 'Cargando...'}
+                </div>
+              )}
             </div>
           </div>
         </section>
