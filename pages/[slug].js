@@ -2,7 +2,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { getArticuloPorSlug, getArticulos } from '../lib/db'
 import { formatFechaHora, formatFechaSolo } from '../lib/fecha'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import AdSlot from '../components/AdSlot'
 
 const COLORES = {
   mexico:          { bg:'#FEE2E2', text:'#991B1B', acento:'#DC2626' },
@@ -11,6 +12,22 @@ const COLORES = {
   deportes:        { bg:'#DCFCE7', text:'#14532D', acento:'#16A34A' },
   entretenimiento: { bg:'#FEF9C3', text:'#713F12', acento:'#D97706' },
   internacional:   { bg:'#FFE4E6', text:'#9F1239', acento:'#E11D48' },
+}
+
+function useScrollDirection() {
+  const [visible, setVisible] = useState(true)
+  const lastY = useRef(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < 60) { setVisible(true); lastY.current = y; return }
+      setVisible(y < lastY.current)
+      lastY.current = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return visible
 }
 
 function CarruselImagenes({ imagenes, fuente_nombre, fuente_url, acento }) {
@@ -158,7 +175,6 @@ function SeccionEmojis({ slug }) {
 
 function resaltarPalabras(texto) {
   if (!texto) return texto
-  // Resaltar: palabras en mayúscula (sustantivos propios), números con contexto
   const partes = []
   let i = 0
   const re = /\b([A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]{2,}(?:\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]{2,})*|\d{1,3}(?:[,\.]\d{3})*(?:\.\d+)?(?:\s*(?:mil|millones?|billones?|%|pesos?|dólares?|mdd))?)\b/g
@@ -176,7 +192,29 @@ function resaltarPalabras(texto) {
   return partes.length > 0 ? partes : texto
 }
 
+function CuerpoConAnuncios({ cuerpo }) {
+  if (!cuerpo) return null
+  const parrafos = cuerpo.split('\n').filter(p => p.trim())
+  const resultado = []
+
+  parrafos.forEach((parrafo, i) => {
+    resultado.push(<p key={`p-${i}`}>{resaltarPalabras(parrafo)}</p>)
+    // Rectangle ad after first paragraph
+    if (i === 0) {
+      resultado.push(
+        <div key="ad-1" style={{ margin:'20px auto', textAlign:'center' }}>
+          <AdSlot size="rectangle" />
+        </div>
+      )
+    }
+  })
+
+  return <>{resultado}</>
+}
+
 export default function Articulo({ articulo, relacionados }) {
+  const headerVisible = useScrollDirection()
+
   if (!articulo) {
     return (
       <div style={{ minHeight:'100vh', background:'#f8f9ff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'system-ui' }}>
@@ -198,38 +236,61 @@ export default function Articulo({ articulo, relacionados }) {
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         .contenido p { margin-bottom:1.3rem; line-height:1.85; color:#374151; font-size:17px; text-align:justify; }
         a { text-decoration:none; }
-        .header-slug { padding:16px 32px; }
-        .logo-text-slug { font-size:24px; }
-        .titulo-articulo { font-size:32px; }
-        .grid-relacionados { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-        @media(max-width:900px) { .grid-relacionados { grid-template-columns:repeat(2,1fr); } }
-        @media(max-width:600px) {
-          .header-slug { padding:12px 16px; }
-          .logo-text-slug { font-size:20px; }
-          .titulo-articulo { font-size:24px; }
-          .grid-relacionados { grid-template-columns:repeat(2,1fr); }
-          .contenido p { font-size:16px; }
+        .header-slug {
+          padding:14px 32px;
+          position:sticky;
+          top:0;
+          z-index:100;
+          transition:transform 0.25s ease, box-shadow 0.25s ease;
         }
-        @media(max-width:400px) { .grid-relacionados { grid-template-columns:1fr; } }
+        .header-slug.hidden { transform:translateY(-100%); box-shadow:none; }
+        .header-slug.visible { transform:translateY(0); box-shadow:0 2px 12px rgba(0,0,0,0.25); }
+        .logo-text-slug { font-size:22px; }
+        .titulo-articulo { font-size:30px; }
+        .relacionados-scroll {
+          display:grid;
+          grid-template-columns:repeat(4,1fr);
+          gap:14px;
+        }
+        @media(max-width:900px) { .relacionados-scroll { grid-template-columns:repeat(2,1fr); } }
+        @media(max-width:768px) {
+          .header-slug { padding:10px 16px; }
+          .logo-text-slug { font-size:18px; }
+          .titulo-articulo { font-size:22px; }
+          .contenido p { font-size:16px; }
+          .relacionados-scroll {
+            display:flex;
+            flex-direction:row;
+            overflow-x:auto;
+            gap:12px;
+            padding-bottom:8px;
+            -webkit-overflow-scrolling:touch;
+            scrollbar-width:none;
+          }
+          .relacionados-scroll::-webkit-scrollbar { display:none; }
+          .relacionados-scroll > * { flex:0 0 220px; min-width:220px; }
+        }
+        @media(max-width:400px) { .titulo-articulo { font-size:20px; } }
       `}</style>
 
-      <header className="header-slug" style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)' }}>
+      <header className={`header-slug ${headerVisible ? 'visible' : 'hidden'}`}
+        style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81,#4338ca)' }}>
         <Link href="/">
           <div style={{ display:'flex', alignItems:'center', gap:'12px', cursor:'pointer' }}>
-            <div style={{ width:'38px', height:'50px', background:'rgba(255,255,255,0.15)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid rgba(255,255,255,0.25)' }}>
-              <span style={{ fontSize:'16px', fontWeight:'900', color:'white' }}>?!</span>
+            <div style={{ width:'34px', height:'44px', background:'rgba(255,255,255,0.15)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid rgba(255,255,255,0.25)' }}>
+              <span style={{ fontSize:'14px', fontWeight:'900', color:'white' }}>?!</span>
             </div>
             <div>
               <div className="logo-text-slug" style={{ fontWeight:'900', color:'white', letterSpacing:'-0.5px', lineHeight:1 }}>Kestapasando.com</div>
-              <div style={{ width:'120px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'3px' }}/>
+              <div style={{ width:'110px', height:'2px', background:'linear-gradient(90deg,#818cf8,#ec4899,#f59e0b)', borderRadius:'2px', marginTop:'3px' }}/>
             </div>
           </div>
         </Link>
       </header>
 
-      <main style={{ maxWidth:'800px', margin:'0 auto', padding:'32px 20px', animation:'fadeIn 0.5s ease' }}>
+      <main style={{ maxWidth:'800px', margin:'0 auto', padding:'28px 16px', animation:'fadeIn 0.5s ease' }}>
 
-        <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
           <span style={{ fontSize:'11px', fontWeight:'700', padding:'4px 12px', borderRadius:'20px', textTransform:'uppercase', letterSpacing:'0.5px', background:c.bg, color:c.text }}>
             {articulo.categoria}
           </span>
@@ -241,6 +302,11 @@ export default function Articulo({ articulo, relacionados }) {
         <h1 className="titulo-articulo" style={{ fontWeight:'900', color:'#111827', lineHeight:'1.25', marginBottom:'16px' }}>
           {articulo.titulo_reescrito}
         </h1>
+
+        {/* Banner ad below title */}
+        <div style={{ margin:'0 auto 16px', textAlign:'center' }}>
+          <AdSlot size="banner" />
+        </div>
 
         <div style={{ background:c.bg, borderLeft:`4px solid ${c.acento}`, padding:'16px 20px', borderRadius:'0 12px 12px 0', marginBottom:'28px' }}>
           <p style={{ margin:0, fontSize:'16px', color:c.text, lineHeight:'1.6', fontWeight:'500' }}>
@@ -256,14 +322,17 @@ export default function Articulo({ articulo, relacionados }) {
         />
 
         <div className="contenido">
-          {articulo.cuerpo && articulo.cuerpo.split('\n').map((parrafo, i) => (
-            parrafo.trim() ? <p key={i}>{resaltarPalabras(parrafo)}</p> : null
-          ))}
+          <CuerpoConAnuncios cuerpo={articulo.cuerpo} />
+        </div>
+
+        {/* Rectangle ad before reactions */}
+        <div style={{ margin:'20px auto', textAlign:'center' }}>
+          <AdSlot size="rectangle" />
         </div>
 
         <SeccionEmojis slug={articulo.slug} />
 
-        <div style={{ marginTop:'32px', paddingTop:'20px', borderTop:'1px solid #e5e7eb' }}>
+        <div style={{ marginTop:'28px', paddingTop:'18px', borderTop:'1px solid #e5e7eb' }}>
           <Link href="/" style={{ fontSize:'14px', fontWeight:'700', color:c.acento }}>
             ← Volver al inicio
           </Link>
@@ -272,18 +341,22 @@ export default function Articulo({ articulo, relacionados }) {
       </main>
 
       {relacionados && relacionados.length > 0 && (
-        <div style={{ background:'#f1f5f9', borderTop:'2px solid #e5e7eb', padding:'32px 20px 40px' }}>
+        <div style={{ background:'#f1f5f9', borderTop:'2px solid #e5e7eb', padding:'28px 16px 16px' }}>
           <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'20px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'16px' }}>
               <div style={{ width:'4px', height:'24px', background:`linear-gradient(180deg,${c.acento},#818cf8)`, borderRadius:'2px' }}/>
               <h3 style={{ fontSize:'16px', fontWeight:'800', color:'#111827', margin:0 }}>
                 También te puede interesar
               </h3>
             </div>
-            <div className="grid-relacionados">
+            <div className="relacionados-scroll">
               {relacionados.map(art => (
                 <TarjetaRelacionada key={art.id} art={art}/>
               ))}
+            </div>
+            {/* Banner ad after related articles */}
+            <div style={{ margin:'20px auto 8px', textAlign:'center' }}>
+              <AdSlot size="banner" />
             </div>
           </div>
         </div>
