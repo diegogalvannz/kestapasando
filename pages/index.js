@@ -365,8 +365,14 @@ export default function Home({ articulos, categoriaActiva }) {
         )}
       </main>
 
-      <footer style={{ textAlign:'center', padding:'20px', fontSize:'12px', color:'#94a3b8', borderTop:'1px solid #e5e7eb', marginTop:'20px' }}>
-        Kestapasando.com · Actualizado cada hora
+      <footer style={{ textAlign:'center', padding:'20px 16px', fontSize:'12px', color:'#94a3b8', borderTop:'1px solid #e5e7eb', marginTop:'20px' }}>
+        <div>Kestapasando.com · Actualizado cada hora</div>
+        <div style={{ marginTop:'8px', display:'flex', justifyContent:'center', gap:'16px', flexWrap:'wrap' }}>
+          <Link href="/acerca-de" style={{ color:'#94a3b8', textDecoration:'underline' }}>Acerca de</Link>
+          <Link href="/privacidad" style={{ color:'#94a3b8', textDecoration:'underline' }}>Privacidad</Link>
+          <Link href="/terminos" style={{ color:'#94a3b8', textDecoration:'underline' }}>Términos</Link>
+          <Link href="/contacto" style={{ color:'#94a3b8', textDecoration:'underline' }}>Contacto</Link>
+        </div>
       </footer>
     </div>
   )

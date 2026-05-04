@@ -3,7 +3,7 @@ export default function Privacidad() {
     <div style={{maxWidth:'800px',margin:'0 auto',padding:'2rem',fontFamily:'sans-serif'}}>
       <h1>Aviso de Privacidad</h1>
       <p><strong>Última actualización:</strong> Abril 2026</p>
-      <p><strong>¿Qué chingados está pasando?</strong> (kestapasando.com) es un sitio de noticias automatizado. No recopilamos información personal de nuestros usuarios.</p>
+      <p><strong>Kestapasando.com</strong> es un sitio de noticias digitales. No recopilamos información personal de nuestros usuarios.</p>
       <h2>Cookies</h2>
       <p>Utilizamos cookies de terceros (Google AdSense) para mostrar publicidad relevante. Estas cookies pueden recopilar información anónima sobre tu navegación.</p>
       <h2>Publicidad</h2>

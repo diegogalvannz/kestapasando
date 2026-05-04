@@ -228,7 +228,7 @@ export default function Articulo({ articulo, relacionados }) {
   return (
     <div style={{ minHeight:'100vh', background:'#f1f5f9', fontFamily:'system-ui,sans-serif' }}>
       <Head>
-        <title>{articulo.titulo_reescrito} | ¿Qué chingados está pasando?</title>
+        <title>{articulo.titulo_reescrito} | Kestapasando.com</title>
         <meta name="description" content={articulo.resumen}/>
       </Head>
 
@@ -363,7 +363,7 @@ export default function Articulo({ articulo, relacionados }) {
       )}
 
       <footer style={{ textAlign:'center', padding:'20px', fontSize:'12px', color:'#94a3b8', borderTop:'1px solid #e5e7eb' }}>
-        ¿Qué chingados está pasando? · Actualizado cada hora
+        Kestapasando.com · Actualizado cada hora · <Link href="/acerca-de" style={{color:'#94a3b8'}}>Acerca de</Link> · <Link href="/privacidad" style={{color:'#94a3b8'}}>Privacidad</Link> · <Link href="/terminos" style={{color:'#94a3b8'}}>Términos</Link>
       </footer>
     </div>
   )

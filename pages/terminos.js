@@ -8,7 +8,7 @@ export default function Terminos() {
       <h2>2. Contenido</h2>
       <p>Las noticias provienen de fuentes públicas. No nos hacemos responsables de errores u omisiones en el contenido.</p>
       <h2>3. Propiedad intelectual</h2>
-      <p>El diseño y código del sitio son propiedad de ¿Qué chingados está pasando? Las noticias pertenecen a sus respectivas fuentes originales.</p>
+      <p>El diseño y código del sitio son propiedad de Kestapasando.com. Las noticias pertenecen a sus respectivas fuentes originales.</p>
       <h2>4. Publicidad</h2>
       <p>El sitio muestra anuncios de Google AdSense. No somos responsables del contenido de dichos anuncios.</p>
       <h2>Contacto</h2>
