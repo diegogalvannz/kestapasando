@@ -4,6 +4,19 @@ export default function Document() {
   return (
     <Html lang="es">
       <Head>
+        {/* Ezoic — Privacy & CMP (must load first) */}
+        <script data-cfasync="false" src="https://cmp.gatekeeperconsent.com/min.js" />
+        <script data-cfasync="false" src="https://the.gatekeeperconsent.com/cmp.min.js" />
+        {/* Ezoic — Main script */}
+        <script async src="//www.ezojs.com/ezoic/sa.min.js" />
+        {/* Ezoic — Standalone init */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ezstandalone = window.ezstandalone || {}; ezstandalone.cmd = ezstandalone.cmd || [];`
+          }}
+        />
+        {/* Ezoic — Analytics */}
+        <script src="//ezoicanalytics.com/analytics.js" />
         {/* Google AdSense */}
         <script
           async
