@@ -204,7 +204,42 @@ export default function Home({ articulos, categoriaActiva }) {
     <div style={{ minHeight:'100vh', background:'#f8f8f8', fontFamily:'system-ui,sans-serif' }}>
       <Head>
         <title>Kestapasando.com — Las noticias sin rodeos</title>
-        <meta name="description" content="Las noticias más cabronas del día en español, sin rodeos y con el estilo que te mereces"/>
+        <meta name="description" content="Las noticias más relevantes de México y el mundo, explicadas sin rodeos para jóvenes mexicanos. Actualizado cada hora."/>
+        <link rel="canonical" href="https://www.kestapasando.com/"/>
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website"/>
+        <meta property="og:site_name" content="Kestapasando.com"/>
+        <meta property="og:title" content="Kestapasando.com — Las noticias sin rodeos"/>
+        <meta property="og:description" content="Las noticias más relevantes de México y el mundo, explicadas sin rodeos para jóvenes mexicanos. Actualizado cada hora."/>
+        <meta property="og:url" content="https://www.kestapasando.com/"/>
+        <meta property="og:image" content="https://www.kestapasando.com/og-default.png"/>
+        <meta property="og:locale" content="es_MX"/>
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@kestapasando"/>
+        <meta name="twitter:title" content="Kestapasando.com — Las noticias sin rodeos"/>
+        <meta name="twitter:description" content="Las noticias más relevantes de México y el mundo, explicadas sin rodeos para jóvenes mexicanos."/>
+        <meta name="twitter:image" content="https://www.kestapasando.com/og-default.png"/>
+
+        {/* JSON-LD WebSite + Sitelinks Searchbox */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Kestapasando.com",
+            "url": "https://www.kestapasando.com",
+            "description": "Las noticias más relevantes de México y el mundo para jóvenes mexicanos",
+            "inLanguage": "es-MX",
+            "publisher": {
+              "@type": "Organization",
+              "name": "Kestapasando.com",
+              "url": "https://www.kestapasando.com"
+            }
+          })}}
+        />
       </Head>
 
       <style>{`

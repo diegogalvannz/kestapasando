@@ -230,6 +230,61 @@ export default function Articulo({ articulo, relacionados }) {
       <Head>
         <title>{articulo.titulo_reescrito} | Kestapasando.com</title>
         <meta name="description" content={articulo.resumen}/>
+        <link rel="canonical" href={`https://www.kestapasando.com/${articulo.slug}`}/>
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article"/>
+        <meta property="og:site_name" content="Kestapasando.com"/>
+        <meta property="og:title" content={articulo.titulo_reescrito}/>
+        <meta property="og:description" content={articulo.resumen}/>
+        <meta property="og:url" content={`https://www.kestapasando.com/${articulo.slug}`}/>
+        {articulo.imagenes && articulo.imagenes[0] && (
+          <meta property="og:image" content={articulo.imagenes[0]}/>
+        )}
+        {articulo.publicado_en && (
+          <meta property="article:published_time" content={articulo.publicado_en}/>
+        )}
+        <meta property="article:section" content={articulo.categoria}/>
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@kestapasando"/>
+        <meta name="twitter:title" content={articulo.titulo_reescrito}/>
+        <meta name="twitter:description" content={articulo.resumen}/>
+        {articulo.imagenes && articulo.imagenes[0] && (
+          <meta name="twitter:image" content={articulo.imagenes[0]}/>
+        )}
+
+        {/* JSON-LD NewsArticle */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": articulo.titulo_reescrito,
+            "description": articulo.resumen,
+            "url": `https://www.kestapasando.com/${articulo.slug}`,
+            "datePublished": articulo.publicado_en,
+            "dateModified": articulo.publicado_en,
+            "image": articulo.imagenes && articulo.imagenes[0] ? [articulo.imagenes[0]] : [],
+            "publisher": {
+              "@type": "Organization",
+              "name": "Kestapasando.com",
+              "url": "https://www.kestapasando.com",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.kestapasando.com/logo.png"
+              }
+            },
+            "author": {
+              "@type": "Organization",
+              "name": "Kestapasando.com"
+            },
+            "inLanguage": "es-MX",
+            "articleSection": articulo.categoria,
+            "keywords": articulo.etiquetas ? articulo.etiquetas.join(', ') : ''
+          })}}
+        />
       </Head>
 
       <style>{`
